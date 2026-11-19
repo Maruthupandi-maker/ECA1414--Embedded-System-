@@ -1,0 +1,57 @@
+#include <Arduino_FreeRTOS.h>
+#include <FreeRTOS.h>
+#include <task.h>
+
+TaskHandle_t h1, h2, h3;
+volatile int c1 = 0, c2 = 0, c3 = 0;
+
+void TaskHigh(void *p) {
+  while (1) {
+    c1++;
+    Serial.print("HIGH   | Priority: 3 | Count: ");
+    Serial.print(c1);
+    Serial.println(" | RUNNING -> BLOCKED (500 ms)");
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+  }
+}
+
+void TaskMedium(void *p) {
+  while (1) {
+    c2++;
+    Serial.print("MEDIUM | Priority: 2 | Count: ");
+    Serial.print(c2);
+    Serial.println(" | RUNNING -> BLOCKED (1000 ms)");
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+  }
+}
+
+void TaskLow(void *p) {
+  while (1) {
+    c3++;
+    Serial.print("LOW    | Priority: 1 | Count: ");
+    Serial.print(c3);
+    Serial.println(" | RUNNING -> BLOCKED (1500 ms)");
+    vTaskDelay(1500 / portTICK_PERIOD_MS);
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(500);
+  Serial.println("========================================");
+  Serial.println(" FreeRTOS TASK PRIORITY EXPERIMENT");
+  Serial.println("========================================");
+
+  xTaskCreate(TaskHigh, "High", 128, NULL, 3, &h1);
+  xTaskCreate(TaskMedium, "Med", 128, NULL, 2, &h2);
+  xTaskCreate(TaskLow, "Low", 128, NULL, 1, &h3);
+
+  Serial.println("Three tasks created successfully.");
+  Serial.println("Priority: HIGH=3, MEDIUM=2, LOW=1");
+  Serial.println("State: RUNNING -> BLOCKED -> READY -> RUNNING");
+  Serial.println("========================================");
+
+  vTaskStartScheduler();
+}
+
+void loop() {}   
